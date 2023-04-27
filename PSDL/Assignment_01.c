@@ -1,3 +1,4 @@
+/*
 Problem statement:
 Study of Embedded C programming language (Overview, syntax, One simple program like addition of two numbers).
 
@@ -44,4 +45,16 @@ For status register to be of value 02H:
           means DC flag enabled
 
 
-Same way we need to find values for all other values.
+Same way we need to find values for all other values. */
+
+#include <xc.h>
+
+void main(void) {
+    TMR0 = 0x01;
+    TMR1 = 0x0F;
+    TMR2 = TMR1 + TMR0;
+    TRISB = 0;
+    PORTB = TMR2;
+    return;
+}
+
