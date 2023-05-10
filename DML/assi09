@@ -3,3 +3,21 @@ write a stored procedure in mysql which will add discount to the customers accor
 	2. Add discount of 15% to all the customers whose order amount is more than rupees 25,000
 	3. write a stored procedure to count number of customers who ordered the product without using aggregate function.
 	
+
+To display cusstomer details who is staying in pune.
+
+Write stored procedure to accept customer number from user and will be displayed his purchase amount of the user
+
+Write a procedure to get customer and data item information for a specific purchase order.
+
+
+
+
+
+
+
+
+
+
+
+
