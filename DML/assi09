@@ -1,0 +1,5 @@
+write a stored procedure in mysql which will add discount to the customers according to the order amount.
+	1. Add discount of 5% to all the customers whose order amount is more than rupees 10,000
+	2. Add discount of 15% to all the customers whose order amount is more than rupees 25,000
+	3. write a stored procedure to count number of customers who ordered the product without using aggregate function.
+	
