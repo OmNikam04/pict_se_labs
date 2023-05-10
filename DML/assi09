@@ -10,7 +10,7 @@ Write stored procedure to accept customer number from user and will be displayed
 
 Write a procedure to get customer and data item information for a specific purchase order.
 
-write a stored procedure to find purchase details of customers who made shopping today.
+write a stored procedure to find purchase details of all customers who made shopping today.
 
 
 
