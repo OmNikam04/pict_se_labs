@@ -59,16 +59,27 @@ write a stored procedure in mysql which will add discount to the customers accor
 	
 
 To display cusstomer details who is staying in pune.
-mysql> delimiter **
-mysql> create procedure nashikCustomers()
-    -> begin 
-    -> select c.name as "customer", p.name as "Product purchased", c.area as "location"
-    -> from orders o
-    -> join customer c on o.cust_id = c.cust_id
-    -> join product p on o.product_id = p.pro_id
-    -> where c.area="nashik";
-    -> end **
-Query OK, 0 rows affected (0.21 sec)
+	mysql> delimiter **
+	mysql> create procedure nashikCustomers()
+	    -> begin 
+	    -> select c.name as "customer", p.name as "Product purchased", c.area as "location"
+	    -> from orders o
+	    -> join customer c on o.cust_id = c.cust_id
+	    -> join product p on o.product_id = p.pro_id
+	    -> where c.area="nashik";
+	    -> end **
+	Query OK, 0 rows affected (0.21 sec)
+	mysql> call nashikCustomers();
+	+----------+-------------------+----------+
+	| customer | Product purchased | location |
+	+----------+-------------------+----------+
+	| om       | Product B         | nashik   |
+	| om       | Product B         | nashik   |
+	| om       | Product C         | nashik   |
+	+----------+-------------------+----------+
+	3 rows in set (0.00 sec)
+
+	Query OK, 0 rows affected (0.00 sec)
 
 Write stored procedure to accept customer number from user and will be displayed his purchase amount of the user
 
