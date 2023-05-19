@@ -14,7 +14,7 @@ void delay(){
 
 void main() {
     TRISB = 0;
-    PORTB = 0x55;// use binary values here to perform pattern blinking like 0b01010104;
+    PORTB = 0x55;// use binary values here to perform pattern blinking like 0b01010104.;
     while(1){
         delay();
         PORTB = ~PORTB;
