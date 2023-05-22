@@ -1,0 +1,13 @@
+Copying to pendrive:
+
+cd "C:\Program Files\MySQL\MySQL Server 8.0\bin"
+
+mysqldump -u root -p dmart_order_mngt_system > "E:\DML\order_mngt_system.sql"
+
+Retrieving from pendrive:
+
+create new database in another system
+use that database
+
+cmd:
+source "path_of_pendrive_.sql"
