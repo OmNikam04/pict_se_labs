@@ -1,0 +1,199 @@
+use university; 
+
+select * from students;
+
+create table students(
+	ssn int primary key not null auto_increment,
+    s_name varchar(20) not null,
+    phone varchar(10) not null,
+    check(phone like '^0-9{10}$'), -- checking only 10 digits mobile number should be entered
+    dob date not null,
+    age int not null,
+    enrolled_dept varchar(20) not null
+);
+
+-- altering some fields after error in inserting
+alter table students
+modify column age int null,
+modify column enrolled_dept varchar(20) null;
+
+-- creating composite attribute address
+alter table students 
+add column house_no int not null,
+add column location varchar(20) not null,
+add column pincode varchar(9) not null;
+
+-- adding degree column in student table
+alter table students
+add column degree varchar(20) not null;
+
+-- making department field foreign key
+-- alter table students
+
+
+insert into students(s_name, phone, dob, degree, house_no, location, pincode) 
+values("mangesh", '1235423569',"2003-05-14", "BCOM", 20, "pune", "422015"),
+("sangeeta", '1236223569',"2003-05-14", "BCOM", 20, "pune", "422015"),
+("priya", '9735423569',"2003-05-14", "BCOM", 20, "pune", "422015");
+
+show create table students;
+
+-- droping check constraint
+alter table students
+drop constraint students_chk_1;
+
+alter table students
+add column dept_code int not null;
+
+-- adding foreign key of department
+alter table students
+add foreign key(enrolled_dept, dept_code) 
+references department(d_name, d_code);
+
+-- upadating values inside table
+update students 
+set enrolled_dept = "ENTC", dept_code="103" 
+where ssn = 2;
+
+create table department(
+	d_name varchar(10) not null,
+    d_code int not null,
+    office_number int not null,
+    college varchar(20) not null,
+    primary key(d_name, d_code)
+);
+
+insert into department values
+("cs", 101, 901, "pict"),
+("IT", 102, 902, "coep"),
+("ENTC", 103, 903, "smps");
+
+select * from department;
+
+create table courses(
+	course_num int not null,
+    dept_name varchar(20) not null,
+    dept_code int not null,
+    c_desc TEXT,
+    credit_hours int,
+    primary key(course_num, dept_code),
+    foreign key(dept_name, dept_code) references department(d_name, d_code)
+);
+
+
+insert into courses
+values(3,"IT",102, "CG",9);
+
+
+select * from courses;
+select * from sections;
+select * from report;
+
+
+
+create table sections(
+	sec_id int primary key auto_increment not null,
+    sec_name varchar(10) not null,
+    instructor varchar(20),
+    sem varchar(10),
+    _year varchar(10)
+);
+
+insert into sections(sec_name, instructor, sem, _year)
+values ("se11", "deepa sapkal", "4th", "second"),
+("se10", "archana kadam", "3rd", "first"),
+("se09", "sanjay sir", "4th", "second");
+
+
+create table report(
+	stud_ssn int not null,
+    stud_sec_id int not null,
+    grade varchar(1) not null,
+    primary key(stud_ssn, stud_sec_id)
+);
+
+insert into report
+values
+(1, 1, "A"),
+(2, 3, "B"),
+(3, 2, "C"),
+(4, 1, "D");
+
+
+
+-- creating records table 
+create table records (
+	record_id int primary key auto_increment,
+    ssn int not null,
+    course_taken int not null,
+    dept_name varchar(20) not null,
+    dept_code int not null,
+    foreign key(ssn) references students(ssn),
+    foreign key(course_taken, dept_code) references courses(course_num, dept_code),
+    foreign key(dept_name, dept_code) references department(d_name, d_code)
+);
+
+insert into records(ssn, course_taken, dept_name, dept_code)
+values
+(4, 3, "IT", 102),
+(4, 2, "IT", 102),
+(4, 1, "cs", 101),
+(1, 2, "IT", 102),
+(1, 3, "IT", 102),
+(3, 2, "IT", 102);
+
+======================================
+--------------QUERIES-----------------
+======================================
+
+
+-- 1. List name of all students who have registered for courses in more than
+-- one department.
+select s.s_name, c.c_desc
+from records rec
+join students s on rec.ssn = s.ssn
+join courses c on rec.course_taken = c.course_num
+where c.course_num = 3;
+
+-- 2. List name and SSN of all students who have registered for more than one course in a specified department.
+select s.ssn, s.s_name, c.c_desc, rec.dept_name
+from records rec
+join students s on rec.ssn = s.ssn
+join courses c on rec.course_taken = c.course_num
+where c.dept_name = "IT";
+
+-- 3. List name of all students who have got at least B grade in all the courses
+-- taken by him/her.
+select rep.stud_ssn, s.s_name,  rep.grade, c.c_desc
+from records rec
+join students s on rec.ssn = s.ssn
+join report rep on rec.ssn = rep.stud_ssn
+join courses c on rec.course_taken = c.course_num
+where rep.grade = "D"; 
+
+-- 4. List name of all students who have got A in all the courses offered by
+-- CS department.
+select rep.stud_ssn, s.s_name,  rep.grade, c.c_desc, c.dept_name
+from records rec
+join students s on rec.ssn = s.ssn
+join report rep on rec.ssn = rep.stud_ssn
+join courses c on rec.course_taken = c.course_num
+where rep.grade = "D" and c.dept_name = "cs"; 
+
+
+-- 5. List the highest grade obtained in each course by students majoring in
+-- each of the departments.
+select rep.stud_ssn, s.s_name,  max(rep.grade) as "highest Grades", c.c_desc, c.dept_name
+from records rec
+join students s on rec.ssn = s.ssn
+join report rep on rec.ssn = rep.stud_ssn
+join courses c on rec.course_taken = c.course_num
+join department d on rec.dept_name = d.d_name;
+
+SELECT d.dept_name, c.course_num, MAX(r.grade) AS highest_grade
+FROM department d
+JOIN courses c ON d.d_code = c.dept_code
+JOIN records rc ON c.dept_code = rc.dept_code
+JOIN students s ON rc.ssn = s.ssn
+JOIN report r ON s.ssn = r.stud_ssn AND rc.course_taken = r.stud_sec_id
+GROUP BY d.dept_name, c.course_num;
