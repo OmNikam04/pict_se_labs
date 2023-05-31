@@ -1,0 +1,35 @@
+-- c) Print the name and address of all customers who haven’t bought any item.
+
+select c.CustomerId, c.name, c.address
+from customers c
+left join sales s on s.CustomerId = c.CustomerId
+where s.CustomerId is null;
+
+
+-- d) Print the number of shops that sell items with id’s starting with 'EF'.
+select i.name, count(sh.name) as "Number of shops"
+from sells sl
+join shops sh on sh.ShopId = sl.ShopId
+join items i on i.ItemId = sl.ItemId
+where i.name like "%A"
+group by i.name;
+
+
+-- e) Print the name and address of the shop(s) that sell the item with id = 'EF123-A' at the lowest price.
+select sh.name, sh.address
+from shops sh
+join sells sl on sl.ShopId = sh.ShopId
+where sl.ItemId = 1 and sl.price = (
+	select min(price)
+	from sells 
+	where ItemId=1
+);
+
+
+-- f) For all customers that have bought at least one item: print the customer id and the total sum of all purchases.
+
+
+-- g) Display total price per customer.
+-- h) Display the name of Highest buyer.
+-- i) Write a procedure to display total items per customer.
+-- j) Write a trigger to delete item, corresponding tables must have reflected according.
