@@ -1,0 +1,91 @@
+CREATE DATABASE shop_database;
+USE shop_database;
+
+-- Create the Shops table
+CREATE TABLE Shops (
+  ShopId INT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  address VARCHAR(255) NOT NULL
+);
+
+-- Create the Items table
+CREATE TABLE Items (
+  ItemId INT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description VARCHAR(255) NOT NULL
+);
+
+-- Create the Sells table
+CREATE TABLE Sells (
+  ShopId INT,
+  ItemId INT,
+  price DECIMAL(10, 2),
+  FOREIGN KEY (ShopId) REFERENCES Shops(ShopId),
+  FOREIGN KEY (ItemId) REFERENCES Items(ItemId)
+);
+
+-- Create the Customers table
+CREATE TABLE Customers (
+  CustomerId INT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  address VARCHAR(255) NOT NULL
+);
+
+-- Create the Sales table
+CREATE TABLE Sales (
+  SaleId INT PRIMARY KEY,
+  CustomerId INT,
+  ItemId INT,
+  ShopId INT,
+  date DATE,
+  FOREIGN KEY (CustomerId) REFERENCES Customers(CustomerId),
+  FOREIGN KEY (ItemId) REFERENCES Items(ItemId),
+  FOREIGN KEY (ShopId) REFERENCES Shops(ShopId)
+);
+
+-- Inserting data
+-- Insert dummy data into the Shops table
+INSERT INTO Shops (ShopId, name, address)
+VALUES
+  (1, 'Shop A', '123 Main St'),
+  (2, 'Shop B', '456 Elm St'),
+  (3, 'Shop C', '789 Oak St'),
+  (4, 'Shop D', '342 perterson St'),
+  (5, 'Shop E', '892 sourth-west St'),
+  (6, 'Shop F', '782 west St');
+
+-- Insert dummy data into the Items table
+INSERT INTO Items (ItemId, name, description)
+VALUES
+  (1, 'Item A', 'Description for Item A'),
+  (2, 'Item B', 'Description for Item B'),
+  (3, 'Item C', 'Description for Item C'),
+  (4, 'Item D', 'Description for Item D'),
+  (5, 'Item E', 'Description for Item E'),
+  (6, 'Item F', 'Description for Item F'),
+  (7, 'Item G', 'Description for Item G');
+
+-- Insert dummy data into the Sells table
+INSERT INTO Sells (ShopId, ItemId, price)
+VALUES
+  (1, 1, 10.99),
+  (6, 2, 19.99),
+  (2, 1, 9.99),
+  (5, 5, 19.99),
+  (3, 5, 20.99),
+  (4, 7, 80.99);
+
+-- Insert dummy data into the Customers table
+INSERT INTO Customers (CustomerId, name, address)
+VALUES
+  (1, 'Customer A', '789 Elm St'),
+  (2, 'Customer B', '456 Oak St'),
+  (3, 'Customer C', '123 Main St'),
+  (4, 'Customer D', '234 Main St');
+
+-- Insert dummy data into the Sales table
+INSERT INTO Sales (SaleId, CustomerId, ItemId, ShopId, date)
+VALUES
+  (1, 1, 1, 1, '2023-01-01'),
+  (2, 2, 2, 2, '2023-02-01'),
+  (3, 3, 3, 3, '2023-03-01');
