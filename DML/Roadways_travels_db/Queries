@@ -1,0 +1,64 @@
+-- a) Create the tables with the appropriate integrity constraints
+-- b) Insert around 10 records in each of the tables.
+-- c) Display all the names of male passengers.
+select * from passengers
+where sex="m";
+
+-- d) Find the ticket numbers of the passengers whose name start with ‘r’ and ends with ‘l’.
+select ticket_no, pname
+from passengers
+where pname like 'r%l';
+
+-- e) Find the names of passengers whose age is between 20 and 50.
+select * from passengers
+where age between 30 and 45;
+
+-- f) Display the sorted list of passenger’s names.
+select * from passengers
+order by pname;
+
+-- g) Find the number of tickets booked by a passenger where the number of seats is greater than 1.
+select p.pname, count(t.tic_no) as "tickets booked"
+from reservation res
+join passengers p on p.p_id = res.p_id
+join ticket t on t.tic_no = res.tic_no
+join bus b on b.bus_no = res.bus_no
+where res.no_of_seats > 10
+group by p.pname;
+
+-- h) Display the Total number of Reservation per bus number.
+select b.bus_no, count(res.pnr_no) as "No of reservation"
+from reservation res
+join passengers p on p.p_id = res.p_id
+join ticket t on t.tic_no = res.tic_no
+join bus b on b.bus_no = res.bus_no
+group by b.bus_no;
+
+-- Write a procedure to display the ticket numbers and names of all the passenger
+mysql> delimiter //
+mysql> create procedure passenger_details()
+    -> begin
+    -> select  p.pname as "passenger", t.tic_no as "Ticket", b.src as "From", b.dest as "To", t.journey_date as "On Date"
+    -> from reservation res
+    -> join passengers p on p.p_id = res.p_id
+    -> join ticket t on t.tic_no = res.tic_no
+    -> join bus b on b.bus_no = res.bus_no;
+    -> end
+    -> //
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> call passenger_details();
++-----------+--------+--------+--------+------------+
+| passenger | Ticket | From   | To     | On Date    |
++-----------+--------+--------+--------+------------+
+| om        |    501 | nashik | pune   | 2023-06-12 |
+| om        |    512 | nashik | pune   | 2023-06-14 |
+| om        |    503 | sangli | pune   | 2023-06-13 |
+| sanjay    |    511 | nashik | pune   | 2023-06-13 |
+| raj       |    505 | baner  | pimpri | 2023-06-14 |
+| raj       |    509 | baner  | pimpri | 2023-06-20 |
+| mangesh   |    506 | baner  | pimpri | 2023-06-18 |
+| rahul     |    508 | sangli | pune   | 2023-06-20 |
+| mangesh   |    510 | mumbai | sangli | 2023-06-13 |
++-----------+--------+--------+--------+------------+
+9 rows in set (0.03 sec)
