@@ -1,0 +1,341 @@
+use bank;
+
+-- A bank database keeps record of the details of customers, accounts,
+-- loans and transactions such as deposits or withdraws. 
+-- Customer record should include customer id, customer name, address, age, contact number, email id etc., 
+-- accounts details involves account
+-- number, account type(fixed account, savings account, monthly
+-- account etc), date of creation of the account, balance. Transaction
+-- detail keeps information about amount deposited or withdrawn
+-- to/from a particular account and the date of transaction. The database
+-- should also store record of loans which include loan amount, loan
+-- date and the account number to which the loan is granted.
+-- Make appropriate tables for the above database and try to find out
+-- the following queries: (Apply appropriate triggers whenever
+-- required)
+
+=====================================================
+-------------CREATED TABLES STRUCTURE----------------
+=====================================================
+
+mysql> select * from accounts;
++----------------+-----------------+------------------+---------+-------------+
+| account_number | account_type    | date_of_creation | balance | customer_id |
++----------------+-----------------+------------------+---------+-------------+
+|              1 | Savings Account | 2022-01-01       | 1000.00 |           1 |
+|              2 | Fixed Account   | 2022-02-01       | 5000.00 |           2 |
+|              3 | Monthly Account | 2022-03-01       | 2000.00 |           3 |
+|              4 | Savings Account | 2022-04-01       | 3000.00 |           4 |
+|              5 | Fixed Account   | 2022-05-01       | 4000.00 |           5 |
++----------------+-----------------+------------------+---------+-------------+
+5 rows in set (0.02 sec)
+
+mysql> select * from transactions;
++----------------+---------+---------------------+----------------+
+| transaction_id | amount  | transaction_date    | account_number |
++----------------+---------+---------------------+----------------+
+|              1 |  100.00 | 2022-01-02 10:00:00 |              1 |
+|              2 |   50.00 | 2022-01-05 14:30:00 |              1 |
+|              3 | -200.00 | 2022-02-10 09:15:00 |              2 |
+|              4 |  300.00 | 2022-03-05 11:45:00 |              3 |
+|              5 | -100.00 | 2022-03-10 16:20:00 |              3 |
+|              6 |  200.00 | 2022-04-03 13:10:00 |              4 |
+|              7 |  -50.00 | 2022-04-08 17:30:00 |              4 |
+|              8 |  400.00 | 2022-05-07 09:30:00 |              5 |
+|              9 | -150.00 | 2022-05-15 12:45:00 |              5 |
+|             10 |  100.00 | 2022-05-20 10:30:00 |              5 |
++----------------+---------+---------------------+----------------+
+10 rows in set (0.00 sec)
+
+mysql> select * from loans;
++---------+-------------+------------+----------------+
+| loan_id | loan_amount | loan_date  | account_number |
++---------+-------------+------------+----------------+
+|       1 |     1000.00 | 2022-02-15 |              2 |
+|       2 |      500.00 | 2022-03-20 |              3 |
+|       3 |      800.00 | 2022-04-25 |              4 |
+|       4 |     1200.00 | 2022-05-30 |              5 |
++---------+-------------+------------+----------------+
+4 rows in set (0.00 sec)
+
+mysql> select * from customers;
++-------------+----------------+--------------------+-----+----------------+----------------------------+
+| customer_id | customer_name  | address            | age | contact_number | email_id                   |
++-------------+----------------+--------------------+-----+----------------+----------------------------+
+|           1 | John Doe       | 123 Main St, City  |  30 | 1234567890     | john.doe@example.com       |
+|           2 | Jane Smith     | 456 Elm St, City   |  25 | 9876543210     | jane.smith@example.com     |
+|           3 | David Johnson  | 789 Oak St, City   |  35 | 5678901234     | david.johnson@example.com  |
+|           4 | Sarah Williams | 321 Pine St, City  |  28 | 0123456789     | sarah.williams@example.com |
+|           5 | Michael Brown  | 654 Cedar St, City |  32 | 8901234567     | michael.brown@example.com  |
++-------------+----------------+--------------------+-----+----------------+----------------------------+
+5 rows in set (0.00 sec)
+
+=====================================================
+-------------CREATE DB QUERIES----------------
+=====================================================
+-- Create the database
+CREATE DATABASE bank_db;
+
+-- Use the database
+USE bank_db;
+
+-- Create the customers table
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY AUTO_INCREMENT,
+    customer_name VARCHAR(100) NOT NULL,
+    address VARCHAR(200) NOT NULL,
+    age INT NOT NULL,
+    contact_number VARCHAR(20) NOT NULL,
+    email_id VARCHAR(100) NOT NULL
+);
+
+-- Create the accounts table
+CREATE TABLE accounts (
+    account_number INT PRIMARY KEY AUTO_INCREMENT,
+    account_type VARCHAR(50) NOT NULL,
+    date_of_creation DATE NOT NULL,
+    balance DECIMAL(10, 2) NOT NULL,
+    customer_id INT,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+
+-- Create the transactions table
+CREATE TABLE transactions (
+    transaction_id INT PRIMARY KEY AUTO_INCREMENT,
+    amount DECIMAL(10, 2) NOT NULL,
+    transaction_date DATETIME NOT NULL,
+    account_number INT,
+    FOREIGN KEY (account_number) REFERENCES accounts(account_number)
+);
+
+-- Create the loans table
+CREATE TABLE loans (
+    loan_id INT PRIMARY KEY AUTO_INCREMENT,
+    loan_amount DECIMAL(10, 2) NOT NULL,
+    loan_date DATE NOT NULL,
+    account_number INT,
+    FOREIGN KEY (account_number) REFERENCES accounts(account_number)
+);
+
+-- Insert dummy data into the customers table
+INSERT INTO customers (customer_name, address, age, contact_number, email_id)
+VALUES
+    ('John Doe', '123 Main St, City', 30, '1234567890', 'john.doe@example.com'),
+    ('Jane Smith', '456 Elm St, City', 25, '9876543210', 'jane.smith@example.com'),
+    ('David Johnson', '789 Oak St, City', 35, '5678901234', 'david.johnson@example.com'),
+    ('Sarah Williams', '321 Pine St, City', 28, '0123456789', 'sarah.williams@example.com'),
+    ('Michael Brown', '654 Cedar St, City', 32, '8901234567', 'michael.brown@example.com');
+
+-- Insert dummy data into the accounts table
+INSERT INTO accounts (account_type, date_of_creation, balance, customer_id)
+VALUES
+    ('Savings Account', '2022-01-01', 1000.00, 1),
+    ('Fixed Account', '2022-02-01', 5000.00, 2),
+    ('Monthly Account', '2022-03-01', 2000.00, 3),
+    ('Savings Account', '2022-04-01', 3000.00, 4),
+    ('Fixed Account', '2022-05-01', 4000.00, 5);
+
+-- Insert dummy data into the transactions table
+INSERT INTO transactions (amount, transaction_date, account_number)
+VALUES
+    (100.00, '2022-01-02 10:00:00', 1),
+    (50.00, '2022-01-05 14:30:00', 1),
+    (-200.00, '2022-02-10 09:15:00', 2),
+    (300.00, '2022-03-05 11:45:00', 3),
+    (-100.00, '2022-03-10 16:20:00', 3),
+    (200.00, '2022-04-03 13:10:00', 4),
+    (-50.00, '2022-04-08 17:30:00', 4),
+    (400.00, '2022-05-07 09:30:00', 5),
+    (-150.00, '2022-05-15 12:45:00', 5),
+    (100.00, '2022-05-20 10:30:00', 5);
+
+-- Insert dummy data into the loans table
+INSERT INTO loans (loan_amount, loan_date, account_number)
+VALUES
+    (1000.00, '2022-02-15', 2),
+    (500.00, '2022-03-20', 3),
+    (800.00, '2022-04-25', 4),
+    (1200.00, '2022-05-30', 5);
+
+=====================================================
+-------------QUERIES PERFORMED-----------------------
+=====================================================
+-- a)List the details of account holders who have a ‘savings’ account.
+select c.customer_id, c.customer_name, c.address, c.age
+from accounts ac 
+join customers c on c.customer_id = ac.customer_id
+where ac.account_type = "Savings Account";
+
+select * 
+from customers
+where customer_id in (
+select customer_id from accounts 
+where account_type = "Savings Account"
+);
+
+-- b) List the Name and address of account holders with loan amount more than 800.
+select *
+from accounts ac
+join loans on loans.account_number = ac.account_number
+join customers c on c.customer_id = ac.customer_id
+where loans.loan_amount > 800;
+
+
+-- c) Change the name of the customer to ‘ABC’ whose account number is ’TU001’
+update customers
+set customer_name = "sushant"
+where customer_id = (
+	select c.customer_id 
+    FROM (
+        SELECT customer_id
+        FROM accounts
+        WHERE account_number = 3
+    ) AS c
+);
+UPDATE customers AS c
+JOIN accounts AS ac ON ac.customer_id = c.customer_id
+SET c.customer_name = 'sushant2'
+WHERE ac.account_number = 3;
+
+-- d) List the account number with total deposit more than 2000.
+select t.account_number, sum(t.amount) as "total_deposits"
+from transactions t
+group by t.account_number 
+having total_deposits > 200;
+
+-- e)List the number of fixed deposit accounts in the bank.
+select count(*) as "Number of fixed deposit accounts"
+from accounts
+where account_type = "Fixed Account";
+
+-- f) Display the details of customers who created their accounts between ’20-jan-08’ to ’20-aug-08’.
+select * 
+from customers
+where customer_id in (
+	select customer_id
+	from accounts 
+	where date_of_creation between "2022-01-01" and "2022-03-01"
+);
+
+-- g) Display the detailed transactions on 28th Aug, 2008.
+-- showing trasaction with may 2022
+select t.transaction_id, ac.account_number, c.customer_name, t.amount, t.transaction_date, ac.balance
+from transactions t
+join accounts ac on ac.account_number = t.account_number
+join customers c on c.customer_id = ac.customer_id
+where month(t.transaction_date) = month("2022-05-01");
+
+select month("2022-05-01");
+-- h) Display the total amount deposited and withdrawn on 29th Aug, 2008.
+select
+	sum(case when t.amount > 0 then t.amount else 0 end) as 'total deposits',
+	sum(case when t.amount < 0 then abs(t.amount) else 0 end) as 'total withdrawal'
+from transactions t
+where month(t.transaction_date) = month("2022-05-01");
+
+
+
+-- i) List the details of customers who have a loan.
+select c.customer_id, ac.account_number, c.customer_name, loans.loan_amount, c.age, c.email_id
+from loans
+join accounts ac on ac.account_number = loans.account_number
+join customers c on c.customer_id = ac.customer_id;
+
+-- j) Write a procedures to display Savings and Loan information of all customers.
+DELIMITER //
+
+CREATE PROCEDURE GetCustomerSavingsAndLoans()
+BEGIN
+    -- Declare variables
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE customer_id INT;
+    DECLARE customer_name VARCHAR(100);
+    
+    -- Declare cursors
+    DECLARE cur CURSOR FOR
+        SELECT c.customer_id, c.customer_name
+        FROM customers c;
+        
+    -- Declare handlers
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    
+    -- Create temporary tables to store results
+    CREATE TEMPORARY TABLE IF NOT EXISTS savings_info (
+        customer_id INT,
+        customer_name VARCHAR(100),
+        account_number INT,
+        account_type VARCHAR(100),
+        balance DECIMAL(10, 2)
+    );
+    
+    CREATE TEMPORARY TABLE IF NOT EXISTS loan_info (
+        customer_id INT,
+        customer_name VARCHAR(100),
+        loan_id INT,
+        loan_amount DECIMAL(10, 2),
+        loan_date DATE
+    );
+    
+    -- Open the cursor
+    OPEN cur;
+    
+    -- Fetch customer data
+    read_loop: LOOP
+        FETCH cur INTO customer_id, customer_name;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+        
+        -- Insert savings information into temporary table
+        INSERT INTO savings_info (customer_id, customer_name, account_number, account_type, balance)
+        SELECT c.customer_id, c.customer_name, a.account_number, a.account_type, a.balance
+        FROM customers c
+        JOIN accounts a ON c.customer_id = a.customer_id
+        WHERE c.customer_id = customer_id AND a.account_type = 'Savings Account';
+        
+        -- Insert loan information into temporary table
+        INSERT INTO loan_info (customer_id, customer_name, loan_id, loan_amount, loan_date)
+        SELECT c.customer_id, c.customer_name, l.loan_id, l.loan_amount, l.loan_date
+        FROM customers c
+        JOIN accounts a ON c.customer_id = a.customer_id
+        JOIN loans l ON a.account_number = l.account_number
+        WHERE c.customer_id = customer_id;
+    END LOOP;
+    
+    -- Close the cursor
+    CLOSE cur;
+    
+    -- Display the savings information
+    SELECT * FROM savings_info;
+    
+    -- Display the loan information
+    SELECT * FROM loan_info;
+    
+    -- Drop temporary tables
+    DROP TABLE IF EXISTS savings_info;
+    DROP TABLE IF EXISTS loan_info;
+    
+END //
+
+DELIMITER ;
+
+
+-- k) Write a trigger to delete the customer.
+delimiter //
+create trigger OnInsertCustomer
+before insert 
+on customers
+for each row
+begin 
+
+	if new.customer_name like "%mallya" then 
+		signal sqlstate '45000' 
+		set message_text = "Mallya is banned from opening account";
+	end if;
+
+end // 
+
+INSERT INTO customers (customer_name, address, age, contact_number, email_id)
+VALUES
+    ('suraj mallya', '123 Main St, City', 30, '1234567890', 'john.doe@example.com');
+
