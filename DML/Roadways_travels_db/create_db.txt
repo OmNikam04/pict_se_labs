@@ -1,0 +1,255 @@
+Database structure:
+mysql> select * from reservation;
++--------+-------------+--------+---------+--------+------+
+| pnr_no | no_of_seats | bus_no | address | tic_no | p_id |
++--------+-------------+--------+---------+--------+------+
+|    401 |          25 |    101 | NULL    |    501 |  201 |
+|    402 |          15 |    101 | NULL    |    512 |  201 |
+|    403 |          10 |    103 | NULL    |    503 |  201 |
+|    404 |          22 |    101 | NULL    |    511 |  205 |
+|    405 |          28 |    107 | NULL    |    505 |  207 |
+|    406 |          58 |    107 | NULL    |    509 |  207 |
+|    407 |          34 |    107 | NULL    |    506 |  202 |
+|    408 |          32 |    103 | NULL    |    508 |  203 |
+|    409 |          60 |    102 | NULL    |    510 |  202 |
++--------+-------------+--------+---------+--------+------+
+9 rows in set (0.00 sec)
+
+mysql> select * from bus;
++--------+-----------+----------+------------+
+| bus_no | src       | dest     | couch_type |
++--------+-----------+----------+------------+
+|    101 | nashik    | pune     | normal     |
+|    102 | mumbai    | sangli   | normal     |
+|    103 | sangli    | pune     | normal     |
+|    104 | satara    | kolhapur | normal     |
+|    105 | nanded    | mumbai   | normal     |
+|    106 | ratnagiri | akola    | normal     |
+|    107 | baner     | pimpri   | normal     |
+|    108 | hinjewadi | katraj   | normal     |
+|    109 | katraj    | hinjewad | normal     |
++--------+-----------+----------+------------+
+9 rows in set (0.00 sec)
+
+mysql> select * from passengers;
++------+-----------+--------+-----+-----+---------+---------+
+| p_id | ticket_no | pnr_no | age | sex | contact | pname   |
++------+-----------+--------+-----+-----+---------+---------+
+|  201 |       510 |    402 |  23 | m   | 230     | om      |
+|  202 |       512 |    408 |  21 | m   | 230     | mangesh |
+|  203 |       517 |    409 |  26 | m   | 230     | rahul   |
+|  204 |       501 |    406 |  18 | f   | 230     | geetesh |
+|  205 |       511 |    407 |  17 | m   | 230     | sanjay  |
+|  206 |       513 |    403 |  45 | f   | 230     | abhi    |
+|  207 |       514 |    401 |  67 | m   | 230     | raj     |
+|  208 |       504 |    404 |  12 | m   | 230     | dinakar |
+|  209 |       506 |    405 |  42 | f   | 230     | sushant |
+|  210 |       508 |    405 |  27 | f   | 230     | salman  |
+|  211 |       512 |    408 |  21 | m   | 230     | om      |
++------+-----------+--------+-----+-----+---------+---------+
+11 rows in set (0.00 sec)
+
+mysql> select * from cancellation;
++------+--------+-----------+------+
+| c_id | pnr_no | ticket_no | p_id |
++------+--------+-----------+------+
+|  301 |    404 |       504 |  208 |
+|  302 |    401 |       506 |  204 |
+|  303 |    405 |       508 |  210 |
++------+--------+-----------+------+
+3 rows in set (0.01 sec)
+
+
+============================================================
+-----------------CREATING DB--------------------------------
+============================================================
+
+use roadways_travels;
+
+-- 1. Bus: - Bus No, Source, Destination, Couch Type
+-- 2. Reservation: - PNR NO, Journey date, Contact No, No-of-Seats, Bus No, Address
+-- 3. Ticket: - Ticket No, Journey date, Age, Dep-Time, Sex, Source, Destination, Bus No
+-- 4. Passenger: - Ticket No, PNR NO, Age, Sex, Contact NO, Name
+-- 5. Cancellation: -PNR NO, Journey date, Seat No, Contact No
+
+select * from bus;
+select * from reservation;
+select * from ticket;
+select * from passengers;
+create table bus(
+	bus_no int primary key auto_increment,
+    src varchar(20) not null,
+    dest varchar(20) not null,
+    couch_type varchar(10) not null default "normal"
+);
+
+
+insert into bus(bus_no, src, dest)
+values(101, "nashik", "pune");
+
+insert into bus(src,dest)
+values("mumbai","sangli"),
+("sangli","pune"),
+("satara","kolhapur"),
+("nanded","mumbai"),
+("ratnagiri","akola"),
+("baner","pimpri"),
+("hinjewadi","katraj"),
+("katraj", "hinjewad");
+
+create table reservation(
+	pnr_no int primary key auto_increment,
+    journey_date date not null,
+    contact_no varchar(10) not null,
+    no_of_seats int not null,
+    bus_no int not null,
+    foreign key(bus_no) references bus(bus_no),
+    address varchar(10)
+);
+insert into reservation(pnr_no, journey_date, contact_no, no_of_seats, bus_no)
+values (401, "2023-06-12", "915230235", 25, 101);
+
+insert into reservation(journey_date, contact_no, no_of_seats, bus_no)
+values ("2023-06-13", "815230235", 15, 102),
+("2023-06-13", "815230235", 10, 103),
+("2023-06-14", "815230235", 22, 104),
+("2023-06-14", "815230235", 28, 105),
+("2023-06-18", "815230235", 58, 106),
+("2023-06-19", "815230235", 34, 107),
+("2023-06-20", "815230235", 32, 108),
+("2023-06-20", "815230235", 60, 109);
+
+alter table reservation
+drop column contact_no, 
+drop column journey_date;
+
+alter table reservation
+add column tic_no int not null;
+alter table reservation
+add foreign key(tic_no) references ticket(tic_no);
+
+alter table reservation
+add column p_id int not null;
+alter table reservation
+add foreign key(p_id) references passengers(p_id);
+
+update reservation
+set tic_no = 
+	case
+		when pnr_no = 401 then 501
+        when pnr_no = 402 then 512
+        when pnr_no = 403 then 503
+        when pnr_no = 404 then 511
+        when pnr_no = 405 then 505
+        when pnr_no = 406 then 509
+        when pnr_no = 407 then 506
+        when pnr_no = 408 then 508
+        when pnr_no = 409 then 510
+	end
+where pnr_no in (401, 402,403,404,405,406,407,408,409)
+;
+update reservation
+set bus_no = 
+	case
+        when pnr_no = 402 then 101
+        when pnr_no = 404 then 101
+        when pnr_no = 405 then 107
+        when pnr_no = 406 then 107
+        when pnr_no = 407 then 107
+        when pnr_no = 408 then 103
+        when pnr_no = 409 then 102
+	end
+where pnr_no in (402,404,405,406,407,408,409)
+;
+
+create table ticket(
+	tic_no int primary key auto_increment,
+    journey_date date not null,
+    age int not null,
+    dep_time time not null,
+    sex varchar(1) not null,
+    src varchar(20) not null,
+    dest varchar(20) not null,
+    bus_no int not null,
+    foreign key(bus_no) references bus(bus_no)
+);
+
+insert into ticket(tic_no, journey_date, age, dep_time, sex, src, dest, bus_no)
+values (501, "2023-06-12", 43, '09:30:00', "f", "nashik","pune", 101);
+
+insert into ticket(journey_date, age, dep_time, sex, src, dest, bus_no)
+values ("2023-06-13", 12, '10:30:00', "m", "mumbai","sangli", 102),
+("2023-06-13", 19, '11:30:00', "f", "sangli","pune", 103),
+("2023-06-14", 21, '12:30:00', "m", "satara","kolhapur", 104),
+("2023-06-14", 32, '12:30:00', "m", "nanded","mumbai", 105),
+("2023-06-18", 68, '14:30:00', "f", "ratnagiri","akola", 106),
+("2023-06-19", 21, '15:30:00', "f", "baner","pimpri", 107),
+("2023-06-20", 19, '15:30:00', "m", "hinjewadi","katraj", 108),
+("2023-06-20", 54, '6:30:00', "f", "katraj","hinjewad", 109);
+
+select * from ticket;
+-- removing unneccesary columns from ticket sex, age, src, dest
+alter table ticket
+drop column sex,
+drop column age,
+drop column src,
+drop column dest;
+
+create table passengers(
+	p_id int primary key auto_increment,
+	ticket_no int not null,
+    pnr_no int not null,
+    foreign key(ticket_no) references ticket(tic_no),
+    foreign key(pnr_no) references reservation(pnr_no),
+    name varchar(20) not null,
+    age int not null,
+    sex varchar(1) not null,
+    contact varchar(10) not null
+);
+alter table passengers
+add column pname varchar(20) not null,
+drop column name;
+
+-- ticket 501-517 
+-- reservation 401-409
+-- bus 101-109
+insert into passengers(p_id, ticket_no, pnr_no, pname, age, sex, contact)
+values(201, 510, 402, "om", 23, "m", "230");
+
+insert into passengers(ticket_no, pnr_no, pname, age, sex, contact)
+values(512, 408, "mangesh", 21, "m", "230"),
+(517, 409, "rahul", 26, "m", "230"),
+(501, 406, "geetesh", 18, "f", "230"),
+(511, 407, "sanjay", 17, "m", "230"),
+(513, 403, "abhi", 45, "f", "230"),
+(514, 401, "raj", 67, "m", "230"),
+(504, 404, "dinakar", 12, "m", "230"),
+(506, 405, "sushant", 42, "f", "230"),
+(508, 405, "salman", 27, "f", "230");
+
+insert into passengers(ticket_no, pnr_no, pname, age, sex, contact)
+values(512, 408, "om", 21, "m", "230");
+
+-- 5. Cancellation: -PNR NO, Journey date, Seat No, Contact No
+
+create table cancellation (
+	c_id int primary key auto_increment,
+    pnr_no int not null,
+    foreign key(pnr_no) references reservation(pnr_no),
+    ticket_no int not null,
+    foreign key(ticket_no) references ticket(tic_no),
+    p_id int not null,
+    foreign key(p_id) references passengers(p_id)
+);
+-- ticket 501-517 
+-- reservation 401-409
+-- bus 101-109
+-- passengers 201-210
+insert into cancellation(c_id, pnr_no, ticket_no, p_id)
+values(301, 404, 504, 208);
+insert into cancellation(pnr_no, ticket_no, p_id)
+values
+(401, 506, 204),
+(405, 508, 210);
+
+
