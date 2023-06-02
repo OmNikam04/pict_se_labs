@@ -34,7 +34,7 @@ void main(void) {
     
     PIE1bits.TMR1IE=1;
     PIR1bits.TMR1IF=0;
-    INTCONbits.PEIE=1;
+    INTCONbits.PEIE=1; // sets low interrupt for priority
     INTCONbits.GIE=1;
     T1CONbits.TMR1ON=1;
     while(1);
