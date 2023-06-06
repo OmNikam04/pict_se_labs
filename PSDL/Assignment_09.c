@@ -1,92 +1,63 @@
 
-#include <pic18f4550.h>
-#include <stdio.h>
+#include <xc.h>
+#include<pic18f4550.h>
 
-#define LCD_EN LATAbits.LA1
-#define LCD_RS LATAbits.LA0
-#define LCDPORT LATB
+#define RS LATAbits.LA0 
+#define EN LATAbits.LA1
 
-unsigned char str[16];
-
-void lcd_delay(unsigned int time)
-{
-    unsigned int i , j ;
-     for(i = 0; i < time; i++)
-     {
-     for(j=0;j<100;j++);
-     }
+void delay(unsigned int delay){
+    for(unsigned int i = 0; i<delay; i++)
+        for(unsigned int j = 0; j< 100; j++);
 }
 
-void SendInstruction(unsigned char command)
-{
-     LCD_RS = 0; // RS low : Instruction
-     LCDPORT = command;
-     LCD_EN = 1; // EN High
-     lcd_delay(10);
-     LCD_EN = 0; // EN Low; command sampled at EN falling edge
-     lcd_delay(10);
+void sendCommand(unsigned char ch){
+    RS = 0;
+    LATB = ch;
+    EN = 1; 
+    delay(10);
+    EN = 0;
+    delay(10);
 }
 
-void SendData(unsigned char lcddata)
-{
-     LCD_RS = 1; // RS HIGH : DATA
-     LCDPORT = lcddata;
-     LCD_EN = 1; // EN High
-     lcd_delay(10);
-     LCD_EN = 0; // EN Low; data sampled at EN falling edge
-     lcd_delay(10);
+void sendData(unsigned char ch){
+    RS = 1;
+    LATB = ch;
+    EN = 1; 
+    delay(10);
+    EN = 0;
+    delay(10);
 }
 
-void InitLCD(void)
-{
-     ADCON1 = 0x0F; //Digital output
-     TRISB = 0x00; //set data port as output
-     TRISAbits.RA0 = 0; //RS pin
-     TRISAbits.RA1 = 0; // EN pin
-     SendInstruction(0x38); //8 bit mode, 2 line,5x7 dots
-     SendInstruction(0x06); //entry mode
-     SendInstruction(0x0C); //Display ON cursor OFF
-     SendInstruction(0x01); //Clear display
-     SendInstruction(0x80); //set address to 0
-}
-void LCD_display(unsigned int row, unsigned int pos, unsigned char *ch)
-{
-   if(row==1)
-      SendInstruction(0x80 | (pos-1));
-   else
-      SendInstruction(0xC0 | (pos-1));
-   while(*ch)
-      SendData(*ch++);
-}
-
-void ADCInit(void)
-{
- TRISEbits.RE2 = 1; //ADC channel 7 input
- ADCON1 = 0b00000111; //Ref voltages Vdd & Vss; AN0 - AN7 channels Analog
- ADCON2 = 0b10101110; //Right justified; Acquisition time 4T; Conversion clock Fosc/64
-}
-
-unsigned short Read_Temp(void)
-{
-   ADCON0 = 0b00011101; //ADC on; Select channel;
-   GODONE = 1; //Start Conversion
-   while(GO_DONE == 1 ); //Wait till A/D conversion is complete
-   return ADRES; //Return ADC result // ADRESH ADRESL registers are used in combination to store converted data i.e. digital data both are 8 bits
-}
-
-int main(void) 
-{
-     unsigned int temp;
-     InitLCD(); //Initialize LCD
-     ADCInit(); //Initialize ADC
-     LCD_display(1,1,"Temperature:"); //Display text
-     while(1)
-     {
-       temp = Read_Temp(); //Store temperature
-       temp = ((temp * 500) / 1023); //Convert temperature to readable output
-       sprintf(str,"%d'C ",temp);
-       LCD_display(2,1,str); //Print temperature value
-       lcd_delay(9000);
+void initLCD(void){
+    ADCON1 = 0X0F;
+    TRISB = 0;// SET DATA PORT AS OUTPUT
+    
+    TRISAbits.RA0 = 0;
+    TRISAbits.RA1 = 0;
+    char cmds[5] = {0x38, 0x06, 0x0C, 0x01, 0x80};
+    for(int i = 0; i<5 ; i++){
+        sendCommand(cmds[i]);
     }
-    return 0;
+    delay(10);
+}
+
+int readTemp(void){
+    ADCON0 = 0b00011101; // ADC on select channel
+    ADCON0bits.GO_DONE = 1;// start conversion
+    while(ADCON0bits.GO_DONE == 1);
+    return ADRES;
+}
+
+void main(void) {
+    initLCD();
+    unsigned int temp ;
+    while(1){
+        temp = readTemp();
+        temp = ((temp * 500)/1023);
+        sendData(temp / 10 + 48);
+        sendData(temp % 10 + 48);
+        
+        delay(10);
+    }
+    return;
 }
