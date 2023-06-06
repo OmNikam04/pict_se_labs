@@ -19,7 +19,7 @@ void main(void)
 
         TMR2IF=0;
         TMR2ON = 1;                     //Timer2 ON
-        for(int i=2;i<255;i+=50)
+        for(i=2;i<255;i+=50)
         {
             CCPR1L=i; //For Decreasing the speed
             for(int j=0;j<1000;j++)
