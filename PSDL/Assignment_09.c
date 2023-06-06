@@ -71,7 +71,7 @@ unsigned short Read_Temp(void)
    ADCON0 = 0b00011101; //ADC on; Select channel;
    GODONE = 1; //Start Conversion
    while(GO_DONE == 1 ); //Wait till A/D conversion is complete
-   return ADRES; //Return ADC result
+   return ADRES; //Return ADC result // ADRESH ADRESL registers are used in combination to store converted data i.e. digital data both are 8 bits
 }
 
 int main(void) 
