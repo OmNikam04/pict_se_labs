@@ -192,6 +192,27 @@ void scaling(vector<pair<double,double>>&points){
 	drawObject(points);
 }
 
+void shearObject(vector<pair<double, double>> &points){
+	double shx, shy;
+	cout << "Enter shx (shear factor along x-axis): ";
+	cin >> shx;
+	cout << "Enter shy (shear factor along y-axis): ";
+	cin >> shy;
+
+	for (int i = 0; i < points.size(); i++)
+	{
+		double x = points[i].first;
+		double y = points[i].second;
+
+		double new_x = x + shx * y;
+		double new_y = y + shy * x;
+
+		points[i] = make_pair(new_x, new_y);
+	}
+
+	glColor3f(0.8, 0.2, 0.8);
+	drawObject(points);
+}
 
 void menu(int item)
 {
@@ -211,8 +232,8 @@ void menu(int item)
 		scaling(ans);
 		break;
 	case 4:
-		// shearing();
-		cout << 4 << endl;
+		ans = createObject();
+		shearObject(ans);
 		break;
 	default:
 		break;
